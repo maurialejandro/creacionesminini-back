@@ -14,7 +14,7 @@ class UserController extends Controller
 
     public function login(Request $request)
     {
-        $this->validateLogin($request);
+        $this->validateData($request);
         if (!Auth::attempt($request->only('email', 'password'))) {
             return response()->json([
                 'message' => 'Unauthorized'
@@ -27,8 +27,7 @@ class UserController extends Controller
         ]);
     }
 
-
-    public function validateLogin(Request $request)
+    public function validateData(Request $request)
     {
         return $request->validate([
             'email' => 'required|email',
@@ -42,8 +41,7 @@ class UserController extends Controller
         // get user
         $users = DB::table('users')->get();
         return response()->json([
-            'users' => $users,
-            'message' => 'DATA GET'
+            'data' => $users
         ]);
     }
 
@@ -58,9 +56,16 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function register(Request $request)
     {
-        //
+        $this->validateData($request);
+        // save the data
+
+
+        return response()->json([
+            'messaje' => 'Save'
+        ]);
+
     }
 
     /**

@@ -23,6 +23,7 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::post('login',[UserController::class, 'login']);
-
+Route::post('register', [Usercontroller::class, 'register']);
+Route::get('user', [UserController::class, 'getUsers']);
 
 
