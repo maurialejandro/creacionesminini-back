@@ -45,27 +45,38 @@ class UserController extends Controller
         ]);
     }
 
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function register(Request $request)
     {
         $this->validateData($request);
-        // save the data
+        $email = $request->email;
+        $password = $request->password;
+        if(isset($email) && isset($password)){
+            $user = DB::table('users')->where('email', $email)->exists();
+            if($user){
+                $data = array(
+                    'message' => 'Error',
+                    'status' => 409
+                );
+            } else {
+                $newUser = new User();
+                $newUser->name = $email;
+                $newUser->email = $email;
+                $newUser->password = $password;
+                if($newUser->save()){
+                    $data = array(
+                        'msg' => 'success',
+                        'status' => 200
+                    );
+                }
+            }
+        } else {
+            $data = array(
+                'msg' => 'Error',
+                'status' => 400
+            );
+        }
 
-
-        return response()->json([
-            'messaje' => 'Save'
-        ]);
-
+        return response()->json($data);
     }
 
     /**

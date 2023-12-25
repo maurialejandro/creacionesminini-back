@@ -1,0 +1,19 @@
+Creo que es redundante tu validación después de la función validateData.
+Si no es valida simplemente retorna un 400 y ya.
+Me parece bien lo versátil que puede ser eloquent al permitirte persistir información desde cualquier parte de tu proyecto, pero creo que tu código seria mas escalable si utilizaras repositorios para tus modelos/entidades y servicios para tu lógica de negocio.
+No respetas del todo los espaciados en tu if.
+El else esta de mas, puedes darle ese valor por default a data.
+Ya no es utilizado comúnmente “array”.
+Y en vez de trabajar retornando errores desde el controlador creo que seria bueno que en tu repositorio integraras una función que se llame findByEmailOrFail que busque por medio de un email o retorne una excepción, ya tu la controlarías de la manera que mas te convenga.
+Como propuesta de mejora de respuestas, te diria que seria bueno que definas una estructura que contenga
+*metadata: http status, http message, custom message
+*data: data
+*pagination(opcional dependiendo del recurso): currentPage, totalItems, itemsPerPage, totalPages
+Te recomiendo lecturas acerca de SOLID.
+Sobre todo enfócate en
+* PSR
+* cohesión y acoplamiento.
+* Test unitarios.
+* dry
+* kiss
+Espero te sirvan de algo mis observaciones.
