@@ -8,48 +8,44 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
+use App\Http\Services\AuthService;
+use App\Http\Requests\StorePostRequest;
 
 class UserController extends Controller
 {
 
-    public function login(Request $request)
+    protected $authServices;
+    public function __construct(AuthService $authService)
     {
-        $this->validateData($request);
-        if (!Auth::attempt($request->only('email', 'password'))) {
-            return response()->json([
-                'message' => 'Unauthorized'
-            ], 401);
+        $this->middleware('guest')->except('logout');
+        $this->authService = $authService;
+    }
+
+    public function login(StorePostRequest $request)
+    {
+        $credentials = $request->only('email', 'password', 'device');
+        if($this->authService->login($credentials)){
+            $token = $request->user()->createToken($request->device)->plainTextToken;
+            $data = [
+                'status' => 200,
+                'message' => 'logued',
+                'token' => $token
+            ];
+        } else {
+            $data = [
+                'status' => 400,
+                'error' => 'bad credenctials'
+            ];
         }
-
-        return response()->json([
-            'token' => $request->user()->createToken($request->device)->plainTextToken,
-            'message' => 'Success'
-        ]);
-    }
-
-    public function validateData(Request $request)
-    {
-        return $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-            'device' => 'required'
-        ]);
-    }
-
-    public function getUsers()
-    {
-        // get user
-        $users = DB::table('users')->get();
-        return response()->json([
-            'data' => $users
-        ]);
+        return response()->json($data);
     }
 
     public function register(Request $request)
     {
-        $this->validateData($request);
+        $this->storePostRequest->rules($request);
         $email = $request->email;
         $password = $request->password;
+        $device = $request->device;
         if(isset($email) && isset($password)){
             $user = DB::table('users')->where('email', $email)->exists();
             if($user){
@@ -61,6 +57,7 @@ class UserController extends Controller
                 $newUser = new User();
                 $newUser->name = $email;
                 $newUser->email = $email;
+                $newUser->device = $device;
                 $newUser->password = $password;
                 if($newUser->save()){
                     $data = array(
@@ -77,6 +74,15 @@ class UserController extends Controller
         }
 
         return response()->json($data);
+    }
+
+    public function getUsers()
+    {
+        // get user
+        $users = DB::table('users')->get();
+        return response()->json([
+            'data' => $users
+        ]);
     }
 
     /**
